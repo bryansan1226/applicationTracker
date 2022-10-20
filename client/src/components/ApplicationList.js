@@ -8,6 +8,7 @@ import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
+import baseUrl from "../util/baseUrl";
 
 function ApplicationList(props) {
   const [company, setCompany] = useState("");
@@ -96,7 +97,7 @@ function ApplicationList(props) {
   };
 
   const getEntries = () => {
-    Axios.get("http://localhost:3001/applications").then((response) => {
+    Axios.get(baseUrl + "/applications").then((response) => {
       console.log(response);
       setApplicationList(response.data);
       console.log("\nGetting entries: " + applicationList);
