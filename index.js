@@ -2,18 +2,26 @@ const path = require("path");
 
 const express = require("express");
 const app = express();
-const mysql = require("mysql");
+const { Pool } = require("pg");
 const cors = require("cors");
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "client/build")));
 
-const db = mysql.createConnection({
+/*const db = mysql.createConnection({
   user: "root",
   host: "localhost",
   password: "password",
   database: "applicationTracker_db",
+});*/
+
+const pool = new Pool({
+  connectionString:
+    "postgres://crwdgwaiieuift:b7a5c092c01fd4c3c1ae529dea8d6b2b1db4fabdeb623611ac8486b545288afc@ec2-35-170-146-54.compute-1.amazonaws.com:5432/ddicpik4f2kefl",
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 app.post("/addApplication", (req, res) => {
@@ -23,11 +31,12 @@ app.post("/addApplication", (req, res) => {
   const salary = req.body.salary;
   const location = req.body.location;
 
-  db.query(
-    "INSERT INTO applications (company,title,listingURL,salary,location) VALUES (?,?,?,?,?)",
+  pool.query(
+    "INSERT INTO applications (company,title,listingurl,salary,location) VALUES ($1,$2,$3,$4,$5)",
     [company, title, listingURL, salary, location],
     (err, result) => {
       if (err) {
+        console.log("Error:\n" + company);
         console.log(err);
       } else {
         res.send("Values inserted");
@@ -37,8 +46,8 @@ app.post("/addApplication", (req, res) => {
 });
 app.post("/deleteApplication", (req, res) => {
   const jobID = req.body.jobID;
-  db.query(
-    "DELETE FROM applications WHERE jobID=(?)",
+  pool.query(
+    "DELETE FROM applications WHERE jobID=($1)",
     [jobID],
     (err, result) => {
       if (err) {
@@ -56,8 +65,8 @@ app.post("/editApplication", (req, res) => {
   const listingURL = req.body.listingURL;
   const salary = req.body.salary;
   const location = req.body.location;
-  db.query(
-    "UPDATE applications SET company=(?),title=(?),listingURL=(?),salary=(?),location=(?) WHERE jobID=(?)",
+  pool.query(
+    "UPDATE applications SET company=($1),title=($2),listingURL=($3),salary=($4),location=($5) WHERE jobID=($6)",
     [company, title, listingURL, salary, location, jobID],
     (err, result) => {
       if (err) {
@@ -70,7 +79,7 @@ app.post("/editApplication", (req, res) => {
 });
 
 app.get("/applications", (req, res) => {
-  db.query("SELECT * FROM applications", (err, result) => {
+  pool.query("SELECT * FROM applications", (err, result) => {
     if (err) {
       console.log(err);
     } else {

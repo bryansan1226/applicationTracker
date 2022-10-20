@@ -24,7 +24,7 @@ function ApplicationList(props) {
   }, []);
 
   const addApplication = () => {
-    Axios.post("http://localhost:3001/addApplication", {
+    Axios.post(baseUrl + "/addApplication", {
       company: company,
       title: title,
       listingURL: listingURL,
@@ -48,8 +48,9 @@ function ApplicationList(props) {
     getEntries();
   };
   const deleteApplication = (jobID) => {
-    console.log("frontend running deleteApplication" + JSON.stringify(jobID));
-    Axios.post("http://localhost:3001/deleteApplication", {
+    console.log("frontend running deleteApplication " + JSON.stringify(jobID));
+    console.log(jobID);
+    Axios.post(baseUrl + "/deleteApplication", {
       jobID: jobID,
     }).then(() => {
       console.log("Delete success");
@@ -74,7 +75,7 @@ function ApplicationList(props) {
     salary,
     location
   ) => {
-    Axios.post("http://localhost:3001/editApplication", {
+    Axios.post(baseUrl + "/editApplication", {
       company: company,
       title: title,
       listingURL: listingURL,
@@ -83,24 +84,15 @@ function ApplicationList(props) {
       jobID: jobID,
     }).then(() => {
       console.log("Edit success");
-      /*setApplicationList([
-        ...applicationList,
-        {
-          company: company,
-          title: title,
-          listingURL: listingURL,
-          salary: salary,
-          location: location,
-        },
-      ]);*/
     });
   };
 
   const getEntries = () => {
     Axios.get(baseUrl + "/applications").then((response) => {
       console.log(response);
-      setApplicationList(response.data);
-      console.log("\nGetting entries: " + applicationList);
+      setApplicationList(response.data.rows);
+      console.log("\nGetting entries: ");
+      console.log(applicationList);
     });
   };
 
@@ -114,46 +106,6 @@ function ApplicationList(props) {
 
   return (
     <div className="App">
-      {/*<label>Company</label>
-      <input
-        type="text"
-        onChange={(event) => {
-          setCompany(event.target.value);
-        }}
-      />
-      <label>Job title</label>
-      <input
-        type="text"
-        onChange={(event) => {
-          setTitle(event.target.value);
-        }}
-      />
-      <label>Listing URL</label>
-      <input
-        type="text"
-        onChange={(event) => {
-          setListingURL(event.target.value);
-        }}
-      />
-      <label>Salary</label>
-      <input
-        type="text"
-        onChange={(event) => {
-          setSalary(event.target.value);
-        }}
-      />
-      <label>Location</label>
-      <input
-        type="text"
-        onChange={(event) => {
-          setLocation(event.target.value);
-        }}
-      />
-      <div className="buttons">
-        <button onClick={addApplication}>Submit</button>
-        <button onClick={logInfo}>Log to console</button>
-        <button onClick={getEntries}>Show entries</button>
-      </div>*/}
       <Navbar bg="primary" variant="dark">
         <Container>
           <Navbar.Brand>My Job Applications</Navbar.Brand>
@@ -173,10 +125,10 @@ function ApplicationList(props) {
                 editApplication={editApplication}
                 deleteApplication={deleteApplication}
                 getEntries={getEntries}
-                jobID={val.jobID}
+                jobID={val.jobid}
                 company={val.company}
                 title={val.title}
-                listingURL={val.listingURL}
+                listingURL={val.listingurl}
                 salary={val.salary}
                 location={val.location}
               />
