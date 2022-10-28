@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import Axios from "axios";
 import ApplicationCard from "./ApplicationCard";
-import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-import EditCard from "./EditCard";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import Modal from "react-bootstrap/Modal";
@@ -24,7 +22,7 @@ function ApplicationList(props) {
   }, []);
 
   const addApplication = () => {
-    Axios.post(baseUrl + "/addApplication", {
+    Axios.post(baseUrl + "addApplication", {
       company: company,
       title: title,
       listingURL: listingURL,
@@ -50,7 +48,7 @@ function ApplicationList(props) {
   const deleteApplication = (jobID) => {
     console.log("frontend running deleteApplication " + JSON.stringify(jobID));
     console.log(jobID);
-    Axios.post(baseUrl + "/deleteApplication", {
+    Axios.post(baseUrl + "deleteApplication", {
       jobID: jobID,
     }).then(() => {
       console.log("Delete success");
@@ -66,6 +64,7 @@ function ApplicationList(props) {
       ]);
     });
     getEntries();
+    getEntries();
   };
   const editApplication = (
     jobID,
@@ -75,7 +74,7 @@ function ApplicationList(props) {
     salary,
     location
   ) => {
-    Axios.post(baseUrl + "/editApplication", {
+    Axios.post(baseUrl + "editApplication", {
       company: company,
       title: title,
       listingURL: listingURL,
@@ -88,7 +87,7 @@ function ApplicationList(props) {
   };
 
   const getEntries = () => {
-    Axios.get(baseUrl + "/applications").then((response) => {
+    Axios.get(baseUrl + "applications").then((response) => {
       console.log(response);
       setApplicationList(response.data.rows);
       console.log("\nGetting entries: ");

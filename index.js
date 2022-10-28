@@ -2,12 +2,13 @@ const path = require("path");
 
 const express = require("express");
 const app = express();
+const PORT = process.env.PORT || 8080;
 const { Pool } = require("pg");
 const cors = require("cors");
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "client/build")));
+app.use(express.static(path.join(__dirname, "build")));
 
 /*const db = mysql.createConnection({
   user: "root",
@@ -24,7 +25,7 @@ const pool = new Pool({
   },
 });
 
-app.post("/addApplication", (req, res) => {
+app.post("/addApplication", async (req, res) => {
   const company = req.body.company;
   const title = req.body.title;
   const listingURL = req.body.listingURL;
@@ -44,7 +45,7 @@ app.post("/addApplication", (req, res) => {
     }
   );
 });
-app.post("/deleteApplication", (req, res) => {
+app.post("/deleteApplication", async (req, res) => {
   const jobID = req.body.jobID;
   pool.query(
     "DELETE FROM applications WHERE jobID=($1)",
@@ -58,7 +59,7 @@ app.post("/deleteApplication", (req, res) => {
     }
   );
 });
-app.post("/editApplication", (req, res) => {
+app.post("/editApplication", async (req, res) => {
   const jobID = req.body.jobID;
   const company = req.body.company;
   const title = req.body.title;
@@ -78,20 +79,32 @@ app.post("/editApplication", (req, res) => {
   );
 });
 
-app.get("/applications", (req, res) => {
+/*app.get("/applications", async (req, res) => {
   pool.query("SELECT * FROM applications", (err, result) => {
     if (err) {
       console.log(err);
     } else {
-      res.send(result);
+      //console.log(result);
+      res.json(result);
     }
   });
-});
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname + "/client/build/index.html"));
+});*/
+
+app.get("/applications", async (req, res) => {
+  try {
+    const allApplications = await pool.query("SELECT * FROM applications");
+
+    res.json(allApplications);
+  } catch (err) {
+    console.error(err.message);
+  }
 });
 
-const PORT = process.env.PORT || 8080;
+app.get("/", async (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+  console.log("in *");
+});
+
 app.listen(PORT, () => {
   console.log("Server is running on " + PORT);
 });
