@@ -8,6 +8,7 @@ import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
+import API_URL from "../config";
 
 function ApplicationList(props) {
   const [company, setCompany] = useState("");
@@ -23,7 +24,7 @@ function ApplicationList(props) {
   }, []);
 
   const addApplication = () => {
-    Axios.post("http://localhost:3001/addApplication", {
+    Axios.post(`${API_URL}/addApplication`, {
       company: company,
       title: title,
       listingURL: listingURL,
@@ -48,7 +49,7 @@ function ApplicationList(props) {
   };
   const deleteApplication = (jobID) => {
     console.log("frontend running deleteApplication" + JSON.stringify(jobID));
-    Axios.post("http://localhost:3001/deleteApplication", {
+    Axios.post(`${API_URL}/deleteApplication`, {
       jobID: jobID,
     }).then(() => {
       console.log("Delete success");
@@ -73,7 +74,7 @@ function ApplicationList(props) {
     salary,
     location
   ) => {
-    Axios.post("http://localhost:3001/editApplication", {
+    Axios.post(`${API_URL}/editApplication`, {
       company: company,
       title: title,
       listingURL: listingURL,
@@ -96,7 +97,7 @@ function ApplicationList(props) {
   };
 
   const getEntries = () => {
-    Axios.get("http://localhost:3001/applications").then((response) => {
+    Axios.get(`${API_URL}/applications`).then((response) => {
       console.log(response);
       setApplicationList(response.data.rows);
       console.log("\nGetting entries: " + applicationList);
