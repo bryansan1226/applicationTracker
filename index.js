@@ -1,15 +1,29 @@
-const path = require("path");
-
 const express = require("express");
 const app = express();
-const PORT = process.env.PORT || 8080;
-const { Pool } = require("pg");
+const mysql = require("mysql");
 const cors = require("cors");
+require("dotenv").config();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "build")));
 
+const { Client } = require("pg");
+
+const db = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
+
+//db.connect();
+db.connect((err) => {
+  if (err) {
+    console.error("Database connection error:", err);
+  } else {
+    console.log("Connected to the database");
+  }
+});
 /*const db = mysql.createConnection({
   user: "root",
   host: "localhost",
@@ -17,27 +31,18 @@ app.use(express.static(path.join(__dirname, "build")));
   database: "applicationTracker_db",
 });*/
 
-const pool = new Pool({
-  connectionString:
-    "postgres://crwdgwaiieuift:b7a5c092c01fd4c3c1ae529dea8d6b2b1db4fabdeb623611ac8486b545288afc@ec2-35-170-146-54.compute-1.amazonaws.com:5432/ddicpik4f2kefl",
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
-
-app.post("/addApplication", async (req, res) => {
+app.post("/addApplication", (req, res) => {
   const company = req.body.company;
   const title = req.body.title;
   const listingURL = req.body.listingURL;
   const salary = req.body.salary;
   const location = req.body.location;
 
-  pool.query(
-    "INSERT INTO applications (company,title,listingurl,salary,location) VALUES ($1,$2,$3,$4,$5)",
+  db.query(
+    'INSERT INTO applications (company,title,"listingURL",salary,location) VALUES ($1,$2,$3,$4,$5)',
     [company, title, listingURL, salary, location],
     (err, result) => {
       if (err) {
-        console.log("Error:\n" + company);
         console.log(err);
       } else {
         res.send("Values inserted");
@@ -45,10 +50,10 @@ app.post("/addApplication", async (req, res) => {
     }
   );
 });
-app.post("/deleteApplication", async (req, res) => {
+app.post("/deleteApplication", (req, res) => {
   const jobID = req.body.jobID;
-  pool.query(
-    "DELETE FROM applications WHERE jobID=($1)",
+  db.query(
+    'DELETE FROM applications WHERE "jobID"=($1)',
     [jobID],
     (err, result) => {
       if (err) {
@@ -59,15 +64,15 @@ app.post("/deleteApplication", async (req, res) => {
     }
   );
 });
-app.post("/editApplication", async (req, res) => {
+app.post("/editApplication", (req, res) => {
   const jobID = req.body.jobID;
   const company = req.body.company;
   const title = req.body.title;
   const listingURL = req.body.listingURL;
   const salary = req.body.salary;
   const location = req.body.location;
-  pool.query(
-    "UPDATE applications SET company=($1),title=($2),listingURL=($3),salary=($4),location=($5) WHERE jobID=($6)",
+  db.query(
+    'UPDATE applications SET company=($1),title=($2),"listingURL"=($3),salary=($4),location=($5) WHERE "jobID"=($6)',
     [company, title, listingURL, salary, location, jobID],
     (err, result) => {
       if (err) {
@@ -79,32 +84,17 @@ app.post("/editApplication", async (req, res) => {
   );
 });
 
-/*app.get("/applications", async (req, res) => {
-  pool.query("SELECT * FROM applications", (err, result) => {
+app.get("/applications", (req, res) => {
+  db.query("SELECT * FROM applications", (err, result) => {
     if (err) {
       console.log(err);
     } else {
-      //console.log(result);
-      res.json(result);
+      res.send(result);
     }
   });
-});*/
-
-app.get("/applications", async (req, res) => {
-  try {
-    const allApplications = await pool.query("SELECT * FROM applications");
-
-    res.json(allApplications);
-  } catch (err) {
-    console.error(err.message);
-  }
 });
 
-app.get("/", async (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-  console.log("in *");
-});
-
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log("Server is running on " + PORT);
 });

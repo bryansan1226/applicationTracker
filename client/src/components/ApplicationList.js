@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import Axios from "axios";
 import ApplicationCard from "./ApplicationCard";
+import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
+import EditCard from "./EditCard";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
-import baseUrl from "../util/baseUrl";
 
 function ApplicationList(props) {
   const [company, setCompany] = useState("");
@@ -22,7 +23,7 @@ function ApplicationList(props) {
   }, []);
 
   const addApplication = () => {
-    Axios.post(baseUrl + "addApplication", {
+    Axios.post("http://localhost:3001/addApplication", {
       company: company,
       title: title,
       listingURL: listingURL,
@@ -46,9 +47,8 @@ function ApplicationList(props) {
     getEntries();
   };
   const deleteApplication = (jobID) => {
-    console.log("frontend running deleteApplication " + JSON.stringify(jobID));
-    console.log(jobID);
-    Axios.post(baseUrl + "deleteApplication", {
+    console.log("frontend running deleteApplication" + JSON.stringify(jobID));
+    Axios.post("http://localhost:3001/deleteApplication", {
       jobID: jobID,
     }).then(() => {
       console.log("Delete success");
@@ -64,7 +64,6 @@ function ApplicationList(props) {
       ]);
     });
     getEntries();
-    getEntries();
   };
   const editApplication = (
     jobID,
@@ -74,7 +73,7 @@ function ApplicationList(props) {
     salary,
     location
   ) => {
-    Axios.post(baseUrl + "editApplication", {
+    Axios.post("http://localhost:3001/editApplication", {
       company: company,
       title: title,
       listingURL: listingURL,
@@ -83,15 +82,24 @@ function ApplicationList(props) {
       jobID: jobID,
     }).then(() => {
       console.log("Edit success");
+      /*setApplicationList([
+        ...applicationList,
+        {
+          company: company,
+          title: title,
+          listingURL: listingURL,
+          salary: salary,
+          location: location,
+        },
+      ]);*/
     });
   };
 
   const getEntries = () => {
-    Axios.get(baseUrl + "applications").then((response) => {
+    Axios.get("http://localhost:3001/applications").then((response) => {
       console.log(response);
       setApplicationList(response.data.rows);
-      console.log("\nGetting entries: ");
-      console.log(applicationList);
+      console.log("\nGetting entries: " + applicationList);
     });
   };
 
@@ -105,6 +113,46 @@ function ApplicationList(props) {
 
   return (
     <div className="App">
+      {/*<label>Company</label>
+      <input
+        type="text"
+        onChange={(event) => {
+          setCompany(event.target.value);
+        }}
+      />
+      <label>Job title</label>
+      <input
+        type="text"
+        onChange={(event) => {
+          setTitle(event.target.value);
+        }}
+      />
+      <label>Listing URL</label>
+      <input
+        type="text"
+        onChange={(event) => {
+          setListingURL(event.target.value);
+        }}
+      />
+      <label>Salary</label>
+      <input
+        type="text"
+        onChange={(event) => {
+          setSalary(event.target.value);
+        }}
+      />
+      <label>Location</label>
+      <input
+        type="text"
+        onChange={(event) => {
+          setLocation(event.target.value);
+        }}
+      />
+      <div className="buttons">
+        <button onClick={addApplication}>Submit</button>
+        <button onClick={logInfo}>Log to console</button>
+        <button onClick={getEntries}>Show entries</button>
+      </div>*/}
       <Navbar bg="primary" variant="dark">
         <Container>
           <Navbar.Brand>My Job Applications</Navbar.Brand>
@@ -117,23 +165,25 @@ function ApplicationList(props) {
       </Navbar>
 
       <div className="applications">
-        {applicationList.map((val, key) => {
-          return (
-            <div>
+        {applicationList && applicationList.length > 0 ? (
+          applicationList.map((val, key) => (
+            <div key={key}>
               <ApplicationCard
                 editApplication={editApplication}
                 deleteApplication={deleteApplication}
                 getEntries={getEntries}
-                jobID={val.jobid}
+                jobID={val.jobID}
                 company={val.company}
                 title={val.title}
-                listingURL={val.listingurl}
+                listingURL={val.listingURL}
                 salary={val.salary}
                 location={val.location}
               />
             </div>
-          );
-        })}
+          ))
+        ) : (
+          <p>No applications to display</p>
+        )}
       </div>
       <Modal show={newAppShow} onHide={() => setNewAppShow(false)}>
         <Modal.Header closeButton>
